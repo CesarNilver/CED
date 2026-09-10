@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Juego Especial para Ti Mi Amor 💖</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            touch-action: manipulation; /* Evita zoom molesto en móviles al tocar */
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(214, 51, 132, 0.2);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            border: 2px solid #ffb6c1;
+        }
+        h1 {
+            color: #d63384;
+            margin-bottom: 15px;
+            font-size: 22px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+        p {
+            line-height: 1.5;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ffb6c1;
+            border-radius: 8px;
+            width: 80%;
+            margin-bottom: 15px;
+            text-align: center;
+            outline: none;
+        }
+        input[type="text"]:focus {
+            border-color: #d63384;
+        }
+        button {
+            background-color: #d63384;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+        .hidden {
+            display: none !important;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+        
+        /* Botones de bienvenida ordenados lado a lado */
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 25px;
+            position: relative;
+            min-height: 60px;
+        }
+        #btn-no {
+            background-color: #6c757d;
+            position: relative;
+            transition: transform 0.1s ease;
+        }
+        
+        .heart-icon {
+            font-size: 22px;
+            animation: pulse 1.5s infinite;
+            display: inline-block;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* Estilos de los Canvas adaptados a móviles */
+        canvas {
+            background-color: #f8f9fa;
+            border: 3px solid #ffb6c1;
+            border-radius: 10px;
+            display: block;
+            margin: 0 auto 15px auto;
+            max-width: 100%;
+            height: auto;
+        }
+        .d-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 55px);
+            justify-content: center;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .d-pad button {
+            width: 55px;
+            height: 45px;
+            padding: 0;
+            font-size: 20px;
+            background-color: #ffe4e1;
+            color: #333;
+        }
+        .mensaje-bonito {
+            background: #fff0f5;
+            border: 2px dashed #d63384;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="main-container">
+        
+        <!-- PANTALLA 1: BIENVENIDA ROMÁNTICA -->
+        <div id="screen-welcome">
+            <h1><span class="heart-icon">💖</span> ¡Hola, mi amor! ¿Quieres jugar un juego? <span class="heart-icon">✨</span></h1>
+            <p>Prepárate para superar varias sorpresas y pruebas muy especiales creadas exclusivamente para ti.</p>
+            <div class="btn-group" id="btn-group-area">
+                <button id="btn-si" onclick="irPruebaFuego()">¡Sí quiero! 💕</button>
+                <button id="btn-no" onmouseover="moverBotonNo()" ontouchstart="moverBotonNo()" onclick="moverBotonNo()">No quiero</button>
+            </div>
+        </div>
+
+        <!-- PANTALLA 2: PRUEBA DE FUEGO (CUMPLEAÑOS) -->
+        <div id="screen-fire" class="hidden">
+            <h1>🔥 Prueba de Fuego 🔥</h1>
+            <p>¿Conoces realmente a César?<br>Debes ingresar su fecha de cumpleaños correcta <strong>(DDMMAAAA)</strong>:</p>
+            <input type="text" id="birthday-input" placeholder="Ej: 05031995" maxlength="8" inputmode="numeric">
+            <br>
+            <button onclick="validarFecha()">Comprobar</button>
+            <div id="error-msg" class="error"></div>
+        </div>
+
+        <!-- PANTALLA 3: NIVEL 1 - LABERINTO -->
+        <div id="screen-maze" class="hidden">
+            <h1>Nivel 1: El Laberinto 🧩</h1>
+            <p style="font-size: 12px; margin-bottom: 5px;">Guía el punto rojo 🔴 hasta la meta verde 🟢 con los botones de abajo.</p>
+            <canvas id="mazeCanvas" width="260" height="260"></canvas>
+            <div class="d-pad">
+                <div></div>
+                <button onclick="moverLaberinto('UP')">⬆️</button>
+                <div></div>
+                <button onclick="moverLaberinto('LEFT')">⬅️</button>
+                <button onclick="moverLaberinto('DOWN')">⬇️</button>
+                <button onclick="moverLaberinto('RIGHT')">➡️</button>
+            </div>
+        </div>
+
+        <!-- PANTALLA 4: MENSAJE BONITO -->
+        <div id="screen-msg" class="hidden">
+            <h1>¡Lo lograste, mi vida! 🎉</h1>
+            <div class="mensaje-bonito">
+                <p style="color: #d63384; font-weight: bold;">✨ Nuestro amor es Bonito ✨</p>
+                <p style="font-size: 13px;">Cada obstáculo superado demuestra que no importa qué tan difícil sea el camino, siempre encontraremos la forma de llegar el uno al otro. ¡Eres la mujer más maravillosa! ❤️</p>
+            </div>
+            <button onclick="iniciarNivel2()">Siguiente Nivel 🚀</button>
+        </div>
+
+        <!-- PANTALLA 5: NIVEL 2 - CAMINO A CASA -->
+        <div id="screen-home" class="hidden">
+            <h1>Nivel 2: El Camino a Casa 🏡</h1>
+            <p style="font-size: 12px; margin-bottom: 5px;">¡Esquiva los obstáculos tocando el botón de saltar!</p>
+            <canvas id="homeCanvas" width="320" height="180"></canvas>
+            <button onclick="saltarMuñeco()" style="background-color: #22c55e; margin-top: 8px; width: 100%;">¡SALTAR! ⬆️</button>
+            <p id="home-status" style="font-size: 12px; margin-top: 5px; font-weight: bold; color: #d63384;"></p>
+        </div>
+
+        <!-- PANTALLA 6: VICTORIA TOTAL -->
+        <div id="screen-win" class="hidden">
+            <h1>🏆 ¡Juego Completado! 🏆</h1>
+            <div class="mensaje-bonito">
+                <p style="color: #d63384; font-weight: bold; font-size: 15px;">¡Has llegado a casa con éxito, mi Amor! 🏠❤️</p>
+                <p style="font-size: 13px;">Has demostrado que me conoces muy bien y que juntos podemos superar cualquier reto en la vida. ¡Te amo muchísimo!</p>
+            </div>
+            <button onclick="reiniciarJuego()">Jugar de Nuevo</button>
+        </div>
+
+    </div>
+
+    <script>
+        const CUMPLE_CORRECTO = "14032002"; 
+
+        function moverBotonNo() {
+            const btnNo = document.getElementById('btn-no');
+            const maxX = 100;
+            const maxY = 40;
+            const randomX = (Math.random() - 0.5) * maxX * 2;
+            const randomY = (Math.random() - 0.5) * maxY * 2;
+            btnNo.style.transform = `translate(${randomX}px, ${randomY}px)`;
+        }
+
+        function irPruebaFuego() {
+            document.getElementById('screen-welcome').classList.add('hidden');
+            document.getElementById('screen-fire').classList.remove('hidden');
+        }
+
+        function validarFecha() {
+            const input = document.getElementById('birthday-input').value.trim();
+            const errorMsg = document.getElementById('error-msg');
+            
+            if (input === CUMPLE_CORRECTO) {
+                errorMsg.textContent = "";
+                document.getElementById('screen-fire').classList.add('hidden');
+                document.getElementById('screen-maze').classList.remove('hidden');
+                iniciarLaberinto();
+            } else {
+                errorMsg.textContent = "❌ Fecha incorrecta. ¿De verdad conoces a César? Inténtalo de nuevo.";
+            }
+        }
+
+        // Laberinto
+        const mazeCanvas = document.getElementById('mazeCanvas');
+        const mCtx = mazeCanvas.getContext('2d');
+        const tileSize = 26;
+        const mapa = [
+            [0,1,1,1,1,1,1,1,1,1],
+            [0,0,0,0,0,0,1,0,0,1],
+            [1,1,1,0,1,0,1,0,1,1],
+            [1,0,0,0,1,0,0,0,0,1],
+            [1,0,1,1,1,1,1,1,0,1],
+            [1,0,0,0,0,0,0,1,0,1],
+            [1,1,1,1,1,1,0,1,0,1],
+            [1,0,0,0,0,1,0,0,0,1],
+            [1,0,1,1,0,1,1,1,0,0],
+            [1,1,1,1,1,1,1,1,1,0]
+        ];
+        let jugadorLab = { x: 0, y: 0 };
+        const metaLab = { x: 9, y: 9 };
+
+        function iniciarLaberinto() {
+            jugadorLab = { x: 0, y: 0 };
+            dibujarLaberinto();
+        }
+
+        function dibujarLaberinto() {
+            mCtx.clearRect(0, 0, mazeCanvas.width, mazeCanvas.height);
+            for (let r = 0; r < mapa.length; r++) {
+                for (let c = 0; c < mapa[r].length; c++) {
+                    mCtx.fillStyle = mapa[r][c] === 1 ? '#4a5568' : '#f8f9fa';
+                    mCtx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
+                }
+            }
+            mCtx.fillStyle = '#22c55e';
+            mCtx.beginPath();
+            mCtx.arc(metaLab.x * tileSize + tileSize/2, metaLab.y * tileSize + tileSize/2, tileSize/3, 0, Math.PI * 2);
+            mCtx.fill();
+
+            mCtx.fillStyle = '#ef4444';
+            mCtx.beginPath();
+            mCtx.arc(jugadorLab.x * tileSize + tileSize/2, jugadorLab.y * tileSize + tileSize/2, tileSize/3, 0, Math.PI * 2);
+            mCtx.fill();
+        }
+
+        function moverLaberinto(dir) {
+            if (!document.getElementById('screen-maze').classList.contains('hidden')) {
+                let nx = jugadorLab.x;
+                let ny = jugadorLab.y;
+                if (dir === 'UP') ny--;
+                if (dir === 'DOWN') ny++;
+                if (dir === 'LEFT') nx--;
+                if (dir === 'RIGHT') nx++;
+
+                if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10 && mapa[ny][nx] === 0) {
+                    jugadorLab.x = nx;
+                    jugadorLab.y = ny;
+                    dibujarLaberinto();
+
+                    if (jugadorLab.x === metaLab.x && jugadorLab.y === metaLab.y) {
+                        setTimeout(() => {
+                            document.getElementById('screen-maze').classList.add('hidden');
+                            document.getElementById('screen-msg').classList.remove('hidden');
+                        }, 200);
+                    }
+                }
+            }
+        }
+
+        // Nivel 2: Camino a casa
+        const homeCanvas = document.getElementById('homeCanvas');
+        const hCtx = homeCanvas.getContext('2d');
+        
+        let muñeco = { x: 30, y: 120, w: 22, h: 22, vy: 0, gravity: 0.55, jump: -8.5, grounded: true };
+        let obstaculo = { x: 320, y: 123, w: 18, h: 18, speed: 3.8 };
+        let puntajeHome = 0;
+        let juegoHomeActivo = false;
+        let loopHomeId;
+
+        function iniciarNivel2() {
+            document.getElementById('screen-msg').classList.add('hidden');
+            document.getElementById('screen-home').classList.remove('hidden');
+            muñeco.y = 120;
+            muñeco.vy = 0;
+            muñeco.grounded = true;
+            obstaculo.x = 320;
+            obstaculo.speed = 3.8;
+            puntajeHome = 0;
+            juegoHomeActivo = true;
+            loopHome();
+        }
+
+        function saltarMuñeco() {
+            if (muñeco.grounded && juegoHomeActivo) {
+                muñeco.vy = muñeco.jump;
+                muñeco.grounded = false;
+            }
+        }
+
+        function loopHome() {
+            if (!juegoHomeActivo) return;
+
+            hCtx.clearRect(0, 0, homeCanvas.width, homeCanvas.height);
+
+            hCtx.fillStyle = '#cbd5e1';
+            hCtx.fillRect(0, 142, homeCanvas.width, 4);
+
+            hCtx.fillStyle = '#d63384';
+            hCtx.fillRect(270, 102, 40, 40);
+
+            muñeco.vy += muñeco.gravity;
+            muñeco.y += muñeco.vy;
+            if (muñeco.y >= 120) {
+                muñeco.y = 120;
+                muñeco.vy = 0;
+                muñeco.grounded = true;
+            }
+
+            hCtx.fillStyle = '#3b82f6';
+            hCtx.fillRect(muñeco.x, muñeco.y, muñeco.w, muñeco.h);
+
+            obstaculo.x -= obstaculo.speed;
+            if (obstaculo.x < -20) {
+                obstaculo.x = 320;
+                puntajeHome++;
+                obstaculo.speed += 0.2; 
+            }
+
+            hCtx.fillStyle = '#ef4444';
+            hCtx.fillRect(obstaculo.x, obstaculo.y, obstaculo.w, obstaculo.h);
+
+            document.getElementById('home-status').textContent = `Obstáculos esquivados: ${puntajeHome} / 5`;
+
+            if (
+                muñeco.x < obstaculo.x + obstaculo.w &&
+                muñeco.x + muñeco.w > obstaculo.x &&
+                muñeco.y < obstaculo.y + obstaculo.h &&
+                muñeco.y + muñeco.h > obstaculo.y
+            ) {
+                juegoHomeActivo = false;
+                alert("¡Oh no, chocaste mi amor! Inténtalo de nuevo.");
+                iniciarNivel2();
+                return;
+            }
+
+            if (puntajeHome >= 5) {
+                juegoHomeActivo = false;
+                setTimeout(() => {
+                    document.getElementById('screen-home').classList.add('hidden');
+                    document.getElementById('screen-win').classList.remove('hidden');
+                }, 300);
+                return;
+            }
+
+            loopHomeId = requestAnimationFrame(loopHome);
+        }
+
+        function reiniciarJuego() {
+            cancelAnimationFrame(loopHomeId);
+            juegoHomeActivo = false;
+            document.getElementById('screen-win').classList.add('hidden');
+            document.getElementById('screen-welcome').classList.remove('hidden');
+            document.getElementById('birthday-input').value = '';
+            document.getElementById('error-msg').textContent = '';
+            document.getElementById('btn-no').style.transform = 'translate(0px, 0px)';
+        }
+    </script>
+</body>
+</html>
