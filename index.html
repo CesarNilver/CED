@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Juego Especial para Ti Mi Amor 💖</title>
+    <title>Juego Especial Para Ti mi Amor 💖</title>
     <style>
         * {
             box-sizing: border-box;
-            touch-action: manipulation; /* Evita zoom molesto en móviles al tocar */
+            touch-action: manipulation;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -77,8 +77,6 @@
             font-size: 13px;
             margin-top: 10px;
         }
-        
-        /* Botones de bienvenida ordenados lado a lado */
         .btn-group {
             display: flex;
             justify-content: center;
@@ -93,7 +91,6 @@
             position: relative;
             transition: transform 0.1s ease;
         }
-        
         .heart-icon {
             font-size: 22px;
             animation: pulse 1.5s infinite;
@@ -104,8 +101,6 @@
             50% { transform: scale(1.2); }
             100% { transform: scale(1); }
         }
-
-        /* Estilos de los Canvas adaptados a móviles */
         canvas {
             background-color: #f8f9fa;
             border: 3px solid #ffb6c1;
@@ -193,7 +188,7 @@
             <h1>Nivel 2: El Camino a Casa 🏡</h1>
             <p style="font-size: 12px; margin-bottom: 5px;">¡Esquiva los obstáculos tocando el botón de saltar!</p>
             <canvas id="homeCanvas" width="320" height="180"></canvas>
-            <button onclick="saltarMuñeco()" style="background-color: #22c55e; margin-top: 8px; width: 100%;">¡SALTAR! ⬆️</button>
+            <button onclick="saltarMuneco()" style="background-color: #22c55e; margin-top: 8px; width: 100%;">¡SALTAR! ⬆️</button>
             <p id="home-status" style="font-size: 12px; margin-top: 5px; font-weight: bold; color: #d63384;"></p>
         </div>
 
@@ -311,7 +306,7 @@
         const homeCanvas = document.getElementById('homeCanvas');
         const hCtx = homeCanvas.getContext('2d');
         
-        let muñeco = { x: 30, y: 120, w: 22, h: 22, vy: 0, gravity: 0.55, jump: -8.5, grounded: true };
+        let muneco = { x: 30, y: 120, w: 22, h: 22, vy: 0, gravity: 0.55, jump: -8.5, grounded: true };
         let obstaculo = { x: 320, y: 123, w: 18, h: 18, speed: 3.8 };
         let puntajeHome = 0;
         let juegoHomeActivo = false;
@@ -320,9 +315,9 @@
         function iniciarNivel2() {
             document.getElementById('screen-msg').classList.add('hidden');
             document.getElementById('screen-home').classList.remove('hidden');
-            muñeco.y = 120;
-            muñeco.vy = 0;
-            muñeco.grounded = true;
+            muneco.y = 120;
+            muneco.vy = 0;
+            muneco.grounded = true;
             obstaculo.x = 320;
             obstaculo.speed = 3.8;
             puntajeHome = 0;
@@ -330,10 +325,10 @@
             loopHome();
         }
 
-        function saltarMuñeco() {
-            if (muñeco.grounded && juegoHomeActivo) {
-                muñeco.vy = muñeco.jump;
-                muñeco.grounded = false;
+        function saltarMuneco() {
+            if (muneco.grounded && juegoHomeActivo) {
+                muneco.vy = muneco.jump;
+                muneco.grounded = false;
             }
         }
 
@@ -348,16 +343,16 @@
             hCtx.fillStyle = '#d63384';
             hCtx.fillRect(270, 102, 40, 40);
 
-            muñeco.vy += muñeco.gravity;
-            muñeco.y += muñeco.vy;
-            if (muñeco.y >= 120) {
-                muñeco.y = 120;
-                muñeco.vy = 0;
-                muñeco.grounded = true;
+            muneco.vy += muneco.gravity;
+            muneco.y += muneco.vy;
+            if (muneco.y >= 120) {
+                muneco.y = 120;
+                muneco.vy = 0;
+                muneco.grounded = true;
             }
 
             hCtx.fillStyle = '#3b82f6';
-            hCtx.fillRect(muñeco.x, muñeco.y, muñeco.w, muñeco.h);
+            hCtx.fillRect(muneco.x, muneco.y, muneco.w, muneco.h);
 
             obstaculo.x -= obstaculo.speed;
             if (obstaculo.x < -20) {
@@ -372,10 +367,10 @@
             document.getElementById('home-status').textContent = `Obstáculos esquivados: ${puntajeHome} / 5`;
 
             if (
-                muñeco.x < obstaculo.x + obstaculo.w &&
-                muñeco.x + muñeco.w > obstaculo.x &&
-                muñeco.y < obstaculo.y + obstaculo.h &&
-                muñeco.y + muñeco.h > obstaculo.y
+                muneco.x < obstaculo.x + obstaculo.w &&
+                muneco.x + muneco.w > obstaculo.x &&
+                muneco.y < obstaculo.y + obstaculo.h &&
+                muneco.y + muneco.h > obstaculo.y
             ) {
                 juegoHomeActivo = false;
                 alert("¡Oh no, chocaste mi amor! Inténtalo de nuevo.");
